@@ -1,8 +1,27 @@
-import processing.serial.*;
-import controlP5.*;
-import java.util.*;
+import processing.core.*; 
+import processing.data.*; 
+import processing.event.*; 
+import processing.opengl.*; 
 
-//Define all the control groups for the various settings
+import processing.serial.*; 
+import controlP5.*; 
+import java.util.*; 
+
+import java.util.HashMap; 
+import java.util.ArrayList; 
+import java.io.File; 
+import java.io.BufferedReader; 
+import java.io.PrintWriter; 
+import java.io.InputStream; 
+import java.io.OutputStream; 
+import java.io.IOException; 
+
+public class HostController extends PApplet {
+
+
+
+
+
 ControlP5 cp5;
 ControlP5 HueShiftCP;
 ControlP5 SingleSpinnerCP;
@@ -16,14 +35,11 @@ ControlP5 SplitQuartersCP;
 ControlP5 RGBCP;
 ControlP5 FadeToBlackCP;
 
-//Setup a status bar
 Textarea Status;
 
-//Define serial port and default baud rate
 Serial LEDPort;  // Create object from Serial class
 final int BAUD_RATE = 115200;
 
-//List of fans for the dropdown, they can be aliased here as well
 //Add more fans here if you have more than four
 List FanText = Arrays.asList("1", "2", "3", "4");
 
@@ -41,7 +57,7 @@ List ModeText = Arrays.asList("Hue Shift",
                               "Fade to Black"
                               );
 
-//Mode Dependent Settings and default values
+//Mode Dependent Settings
 //many of these are common across modes
 int StartingHue = 128;
 int EndingHue = 128;
@@ -78,13 +94,10 @@ int FadeRate = 10;
 int SelectedModeNum;
 int SelectedFan;
 
-void setup() 
+public void setup() 
 {
   
-  //Window size
-  size(800, 800);
   
-  //create all control objects
   cp5 = new ControlP5(this);
   HueShiftCP = new ControlP5(this);
   SingleSpinnerCP = new ControlP5(this);
@@ -98,22 +111,19 @@ void setup()
   RGBCP = new ControlP5(this);
   FadeToBlackCP = new ControlP5(this);
 
-  //Add elements to control objects
   SetupControls();
-  
-  //Black background
+                
   background(0);
   
 }
 
-void draw() {
+public void draw() {
   
-  //Redraw screen
   background(0);
   
 }
 
-void SetupControls(){
+public void SetupControls(){
   List ports = Arrays.asList(Serial.list());
   
   // create DropdownList to select the com port
@@ -171,8 +181,7 @@ void SetupControls(){
      .setPosition(500,700)
      .setSize(200,19)
      ;
-  
-  //Setup and draw all the individual settings
+     
   DrawHueShiftSettings();
   DrawSingleSpinnerSettings();
   DrawRainbowSettings();
@@ -185,11 +194,10 @@ void SetupControls(){
   DrawRGBSettings();
   DrawFadeToBlackSettings();
   
-  //Hide all the settings so only the desired ones can be shown
   HideSettings();
 }
 
-void DrawHueShiftSettings(){
+public void DrawHueShiftSettings(){
   
   //-- mode0() -----------------------------------------------------------------------------------------------
   // Hue Shift
@@ -227,7 +235,7 @@ void DrawHueShiftSettings(){
      
 }
 
-void DrawSingleSpinnerSettings(){
+public void DrawSingleSpinnerSettings(){
   
   // Single Spinner
   // Settings: 1 = Hue (Overridden by 3); 2 = 0 -> Clockwise, 1+ -> Counterclockwise;
@@ -280,7 +288,7 @@ void DrawSingleSpinnerSettings(){
      
 }
 
-void DrawRainbowSettings(){
+public void DrawRainbowSettings(){
   
   // Rainbow
   // Settings: 1 = Chance of Sparkles (0-255); 2 = Hue Steps per LED -- 21 shows a full rainbow; 7 = Speed of Rotation
@@ -305,7 +313,7 @@ void DrawRainbowSettings(){
      
 }
 
-void DrawFourPointSettings(){
+public void DrawFourPointSettings(){
   
   // Four-point spinner
   // Settings: 1 = Hue (Overridden by 3); 2 = 0 -> Clockwise, 1+ -> Counterclockwise;
@@ -359,7 +367,7 @@ void DrawFourPointSettings(){
   
 }
 
-void DrawDoubleScanSettings(){
+public void DrawDoubleScanSettings(){
   
   //Double-scan
   // Settings: 1 = Hue (Overridden by 3); 2 = Rotation Offset; 3 = Rainbowmode? 0 -> No, 1 -> Rainbow
@@ -411,7 +419,7 @@ void DrawDoubleScanSettings(){
 
 }
 
-void DrawDoubleSpinnerSettings(){
+public void DrawDoubleSpinnerSettings(){
   
   // Double Spinner
   // Settings: 1 = Hue (Overridden by 3); 2 = 0 -> Clockwise, 1+ -> Counterclockwise;
@@ -465,7 +473,7 @@ void DrawDoubleSpinnerSettings(){
 
 }
 
-void DrawBPMSettings(){
+public void DrawBPMSettings(){
   
   // BPM from 100-line demo
   // Settings: 7 = BPM; 1 = Hue multiplier; 2 = Beat multiplier
@@ -489,7 +497,7 @@ void DrawBPMSettings(){
      ;
 }
 
-void DrawSplitSidesSettings(){
+public void DrawSplitSidesSettings(){
   
   // Split Sides
   // Settings: 7 = BPM of PulseShape; 1 = W Side hue; 2 = E Side hue; 4 = Fan Phase Offset; 5 = Per side phase offset;
@@ -534,7 +542,7 @@ void DrawSplitSidesSettings(){
       
 }
 
-void DrawSplitQuartersSettings(){
+public void DrawSplitQuartersSettings(){
   
   // Split Quarters
   // Settings: 1 = NW Side hue; 2 = NE Side hue; 3 = SE Side hue; 4 = SW Side hue;
@@ -587,7 +595,7 @@ void DrawSplitQuartersSettings(){
 
 }
 
-void DrawRGBSettings(){
+public void DrawRGBSettings(){
   
   // Set RGB Color
   // 1 = R; 2 = G; 3 = B
@@ -612,7 +620,7 @@ void DrawRGBSettings(){
 
 }
 
-void DrawFadeToBlackSettings(){
+public void DrawFadeToBlackSettings(){
   
   // Fade to Black (No further color changes)
   // Settings: 1 = Fade Rate
@@ -625,9 +633,8 @@ void DrawFadeToBlackSettings(){
 
 }
 
-void HideSettings(){
+public void HideSettings(){
   
-  //Hide all the settings controls
   HueShiftCP.hide();
   SingleSpinnerCP.hide();
   RainbowCP.hide();
@@ -644,19 +651,17 @@ void HideSettings(){
   
 }
 
-//This function is called when a com port is selected from the dropdown menu
-void COMPort(int n) {
+
+public void COMPort(int n) {
   
-  //Pull the selected value from the drop down
   String SelectedPort = cp5.get(ScrollableList.class, "COMPort").getItem(n).get("text").toString() ;
   
-  //If the com port is already open, close it
+  //Set COM Port for application
   if(LEDPort != null){
       LEDPort.stop();
       LEDPort = null;
     }
   
-  //Try to connect to the port
   try{
       LEDPort = new Serial(this,SelectedPort,BAUD_RATE);
       Status.setText("connected to " + SelectedPort);
@@ -668,32 +673,27 @@ void COMPort(int n) {
   
 }
 
-//This function is called when the fan number is selected from the drop down
-void FANNumber(int n) {
+public void FANNumber(int n) {
   
   //Fetch the selected value from the element
   //By deafult, the value field is indexed from 0, and we need it from 1
-  SelectedFan = int(cp5.get(ScrollableList.class, "FANNumber").getValue()+1);
+  SelectedFan = PApplet.parseInt(cp5.get(ScrollableList.class, "FANNumber").getValue()+1);
   
-  //Print status
   Status.setText("Fan " + SelectedFan + " selected");
   
 }
 
-//This function is called when the mode is selected from the drop down
-void MODENumber(int n) {
+public void MODENumber(int n) {
   
   //Fetch the selected value from the element
   //By deafult, the value field is indexed from 0, which is sufficient here
-  SelectedModeNum = int(cp5.get(ScrollableList.class, "MODENumber").getValue());
+  SelectedModeNum = PApplet.parseInt(cp5.get(ScrollableList.class, "MODENumber").getValue());
   
   //Fetch the selected text
   String SelectedMode = cp5.get(ScrollableList.class, "MODENumber").getItem(n).get("text").toString();
   
-  //Print status
   Status.setText(SelectedMode + " mode selected");
   
-  //for the selected mode, show only its settings
   switch (SelectedModeNum) {
     case 0:
       HideSettings();
@@ -745,13 +745,10 @@ void MODENumber(int n) {
   
 }
 
-//Called when the send button is clicked
 public void Send() {
   
-  //Setup a string to hold the command structure
   String TransmitString = null;
   
-  //Create a command string based on the selected fan, mode, and settings
   switch (SelectedModeNum) {
     case 0:
       TransmitString = (">" + SelectedFan + ".0.0" + 
@@ -846,10 +843,8 @@ public void Send() {
       break;
   }
   
-  //Debug print of transmit string
   println(TransmitString);
   
-  //Send the string only if connected to the com port and a string is preped
   if(LEDPort == null){
     Status.setText("Controller Not Connected");
   }
@@ -865,7 +860,6 @@ public void Send() {
 
 }
 
-//Called when the default button is clicked
 public void SetDefault(){
   
   if(LEDPort == null){
@@ -876,4 +870,14 @@ public void SetDefault(){
     Status.setText("Default Config Set");
   }
   
+}
+  public void settings() {  size(800, 800); }
+  static public void main(String[] passedArgs) {
+    String[] appletArgs = new String[] { "HostController" };
+    if (passedArgs != null) {
+      PApplet.main(concat(appletArgs, passedArgs));
+    } else {
+      PApplet.main(appletArgs);
+    }
+  }
 }

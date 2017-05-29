@@ -2,7 +2,6 @@ import processing.serial.*;
 import controlP5.*;
 import java.util.*;
 
-//Define all the control groups for the various settings
 ControlP5 cp5;
 ControlP5 HueShiftCP;
 ControlP5 SingleSpinnerCP;
@@ -16,14 +15,11 @@ ControlP5 SplitQuartersCP;
 ControlP5 RGBCP;
 ControlP5 FadeToBlackCP;
 
-//Setup a status bar
 Textarea Status;
 
-//Define serial port and default baud rate
 Serial LEDPort;  // Create object from Serial class
 final int BAUD_RATE = 115200;
 
-//List of fans for the dropdown, they can be aliased here as well
 //Add more fans here if you have more than four
 List FanText = Arrays.asList("1", "2", "3", "4");
 
@@ -41,7 +37,7 @@ List ModeText = Arrays.asList("Hue Shift",
                               "Fade to Black"
                               );
 
-//Mode Dependent Settings and default values
+//Mode Dependent Settings
 //many of these are common across modes
 int StartingHue = 128;
 int EndingHue = 128;
@@ -80,11 +76,8 @@ int SelectedFan;
 
 void setup() 
 {
-  
-  //Window size
   size(800, 800);
   
-  //create all control objects
   cp5 = new ControlP5(this);
   HueShiftCP = new ControlP5(this);
   SingleSpinnerCP = new ControlP5(this);
@@ -98,17 +91,14 @@ void setup()
   RGBCP = new ControlP5(this);
   FadeToBlackCP = new ControlP5(this);
 
-  //Add elements to control objects
   SetupControls();
-  
-  //Black background
+                
   background(0);
   
 }
 
 void draw() {
   
-  //Redraw screen
   background(0);
   
 }
@@ -171,8 +161,7 @@ void SetupControls(){
      .setPosition(500,700)
      .setSize(200,19)
      ;
-  
-  //Setup and draw all the individual settings
+     
   DrawHueShiftSettings();
   DrawSingleSpinnerSettings();
   DrawRainbowSettings();
@@ -185,7 +174,6 @@ void SetupControls(){
   DrawRGBSettings();
   DrawFadeToBlackSettings();
   
-  //Hide all the settings so only the desired ones can be shown
   HideSettings();
 }
 
@@ -627,7 +615,6 @@ void DrawFadeToBlackSettings(){
 
 void HideSettings(){
   
-  //Hide all the settings controls
   HueShiftCP.hide();
   SingleSpinnerCP.hide();
   RainbowCP.hide();
@@ -644,19 +631,17 @@ void HideSettings(){
   
 }
 
-//This function is called when a com port is selected from the dropdown menu
+
 void COMPort(int n) {
   
-  //Pull the selected value from the drop down
   String SelectedPort = cp5.get(ScrollableList.class, "COMPort").getItem(n).get("text").toString() ;
   
-  //If the com port is already open, close it
+  //Set COM Port for application
   if(LEDPort != null){
       LEDPort.stop();
       LEDPort = null;
     }
   
-  //Try to connect to the port
   try{
       LEDPort = new Serial(this,SelectedPort,BAUD_RATE);
       Status.setText("connected to " + SelectedPort);
@@ -668,19 +653,16 @@ void COMPort(int n) {
   
 }
 
-//This function is called when the fan number is selected from the drop down
 void FANNumber(int n) {
   
   //Fetch the selected value from the element
   //By deafult, the value field is indexed from 0, and we need it from 1
   SelectedFan = int(cp5.get(ScrollableList.class, "FANNumber").getValue()+1);
   
-  //Print status
   Status.setText("Fan " + SelectedFan + " selected");
   
 }
 
-//This function is called when the mode is selected from the drop down
 void MODENumber(int n) {
   
   //Fetch the selected value from the element
@@ -690,10 +672,8 @@ void MODENumber(int n) {
   //Fetch the selected text
   String SelectedMode = cp5.get(ScrollableList.class, "MODENumber").getItem(n).get("text").toString();
   
-  //Print status
   Status.setText(SelectedMode + " mode selected");
   
-  //for the selected mode, show only its settings
   switch (SelectedModeNum) {
     case 0:
       HideSettings();
@@ -745,13 +725,10 @@ void MODENumber(int n) {
   
 }
 
-//Called when the send button is clicked
 public void Send() {
   
-  //Setup a string to hold the command structure
   String TransmitString = null;
   
-  //Create a command string based on the selected fan, mode, and settings
   switch (SelectedModeNum) {
     case 0:
       TransmitString = (">" + SelectedFan + ".0.0" + 
@@ -846,10 +823,8 @@ public void Send() {
       break;
   }
   
-  //Debug print of transmit string
   println(TransmitString);
   
-  //Send the string only if connected to the com port and a string is preped
   if(LEDPort == null){
     Status.setText("Controller Not Connected");
   }
@@ -865,7 +840,6 @@ public void Send() {
 
 }
 
-//Called when the default button is clicked
 public void SetDefault(){
   
   if(LEDPort == null){
